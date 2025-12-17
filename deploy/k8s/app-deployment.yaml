@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose.yml -o ../k8s/
+    kompose.namespace: jotion
+    kompose.version: 1.37.0 (HEAD)
+  labels:
+    io.kompose.service: app
+  name: app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: app
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f docker-compose.yml -o ../k8s/
+        kompose.namespace: jotion
+        kompose.version: 1.37.0 (HEAD)
+      labels:
+        io.kompose.service: app
+    spec:
+      containers:
+        - args:
+            - sh
+            - -lc
+            - npx prisma db push --skip-generate && node server.js
+          envFrom:
+            - configMapRef:
+                name: env
+          image: jotion-app
+          livenessProbe:
+            exec:
+              command:
+                - curl
+                - -f
+                - http://localhost:3000/api/health
+            failureThreshold: 3
+            initialDelaySeconds: 40
+            periodSeconds: 30
+            timeoutSeconds: 10
+          name: jotion-app
+          ports:
+            - containerPort: 3000
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /app/logs
+              name: app-logs
+            - mountPath: /app/uploads
+              name: app-claim1
+      restartPolicy: Always
+      volumes:
+        - name: app-logs
+          persistentVolumeClaim:
+            claimName: app-logs
+        - name: app-claim1
+          persistentVolumeClaim:
+            claimName: app-claim1

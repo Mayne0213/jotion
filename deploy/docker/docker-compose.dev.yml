@@ -1,0 +1,51 @@
+services:
+  app:
+    build:
+      context: ../../services/nextjs
+      dockerfile: ../../deploy/docker/Dockerfile.dev
+    container_name: jotion-app-dev
+    restart: unless-stopped
+    labels:
+      kompose.namespace: jotion
+    ports:
+      - 3001:3000
+    env_file:
+      - ../../.env
+    environment:
+      - NODE_ENV=development
+      - WATCHPACK_POLLING=true
+    networks:
+      - jotion-network
+    volumes:
+      - ../../services/nextjs:/app
+      - /app/node_modules
+      - /app/.next
+      - app_logs:/app/logs
+    command: npm run dev
+
+  prisma-studio:
+    build:
+      context: ../../services/nextjs
+      dockerfile: ../../deploy/docker/Dockerfile.dev
+    container_name: jotion-prisma-studio
+    restart: unless-stopped
+    labels:
+      kompose.namespace: jotion
+    ports:
+      - 5555:5555
+    env_file:
+      - ../../.env
+    networks:
+      - jotion-network
+    volumes:
+      - ../../services/nextjs:/app
+      - /app/node_modules
+    command: npx prisma studio --hostname 0.0.0.0 --port 5555
+
+volumes:
+  app_logs:
+    driver: local
+
+networks:
+  jotion-network:
+    driver: bridge

@@ -1,0 +1,42 @@
+services:
+  # Next.js Application - Using Supabase for Database
+  app:
+    image: jotion-app
+    build:
+      context: ../../services/nextjs
+      dockerfile: ../../deploy/docker/Dockerfile.prod
+    container_name: jotion-app
+    restart: unless-stopped
+    labels:
+      kompose.namespace: jotion
+    ports:
+      - 3001:3000
+    env_file:
+      - ../../.env
+    environment:
+      - NODE_ENV=production
+    networks:
+      - jotion-network
+    volumes:
+      - app_logs:/app/logs
+      - ../uploads:/app/uploads
+    healthcheck:
+      test: [CMD, curl, -f, http://localhost:3000/api/health]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    command: >
+      sh -lc "npx prisma db push --skip-generate && node server.js"
+
+volumes:
+  # Named volumes for data persistence
+  app_logs:
+    driver: local
+
+networks:
+  jotion-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

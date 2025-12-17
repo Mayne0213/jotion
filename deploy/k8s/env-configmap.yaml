@@ -1,0 +1,13 @@
+apiVersion: v1
+data:
+  DATABASE_URL: postgresql://postgres.iydgiwqzhrodituuxdhq:Jo87345364%40@aws-1-ap-northeast-2.pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1
+  DIRECT_URL: postgresql://postgres.iydgiwqzhrodituuxdhq:Jo87345364%40@aws-1-ap-northeast-2.pooler.supabase.com:5432/postgres
+  JWT_SECRET: jwt_super_secret_key_2024_change_in_production
+  NODE_ENV: production
+  SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5ZGdpd3F6aHJvZGl0dXV4ZGhxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzNTEzODYsImV4cCI6MjA3NjkyNzM4Nn0.LVsROtXfAqx6fv2rhBab-CVis9wsbmcZ7X5LobJgl5o
+  SUPABASE_URL: https://iydgiwqzhrodituuxdhq.supabase.co
+kind: ConfigMap
+metadata:
+  labels:
+    io.kompose.service: app-env
+  name: env
