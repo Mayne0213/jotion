@@ -1,0 +1,131 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// User model for authentication
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  image     String?
+  password  String   // Hashed password
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  documents Document[]
+  folders   Folder[]
+  templates Template[]
+
+  @@map("users")
+}
+
+// Folder model for organizing documents
+model Folder {
+  id        String   @id @default(uuid())
+  name      String
+  icon      String?  // Folder icon
+  color     String?  // Folder color
+  isArchived Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Hierarchy
+  parentId  String?
+  parent    Folder? @relation("FolderHierarchy", fields: [parentId], references: [id])
+  children  Folder[] @relation("FolderHierarchy")
+
+  // Ownership
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Relations
+  documents Document[]
+
+  // Indexes
+  @@index([userId])
+  @@index([parentId])
+  @@index([isArchived])
+  @@map("folders")
+}
+
+// Document model for Notion-like documents
+model Document {
+  id        String   @id @default(uuid())
+  title     String
+  content   Json?    // JSON content for rich text
+  icon      String?  // Document icon
+  cover     String?  // Cover image URL
+  isPublished Boolean @default(false)
+  isArchived Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Document type
+  type      DocumentType @default(PAGE) // PAGE, CODE_FILE
+  
+  // Code file specific fields
+  filePath     String? // Path within the repository
+  fileContent  String? // Raw file content
+  language     String? // Programming language
+  fileSize     Int?    // File size in bytes
+  
+  // Hierarchy
+  parentId  String?
+  parent    Document? @relation("DocumentHierarchy", fields: [parentId], references: [id])
+  children  Document[] @relation("DocumentHierarchy")
+
+  // Folder relationship
+  folderId  String?
+  folder    Folder? @relation(fields: [folderId], references: [id], onDelete: SetNull)
+
+  // Ownership
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Indexes
+  @@index([userId])
+  @@index([parentId])
+  @@index([folderId])
+  @@index([isArchived])
+  @@index([type])
+  @@map("documents")
+}
+
+// Template model for document templates
+model Template {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  category    String   @default("General")
+  title       String
+  content     Json     // JSON content for rich text
+  isPublic    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Ownership
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Indexes
+  @@index([userId])
+  @@index([category])
+  @@index([isPublic])
+  @@map("templates")
+}
+
+// Document type enum
+enum DocumentType {
+  PAGE
+  CODE_FILE
+}
