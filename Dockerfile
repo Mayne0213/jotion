@@ -9,7 +9,7 @@ WORKDIR /app
 
 # Install dependencies based on the preferred package manager
 COPY package.json package-lock.json* ./
-RUN npm ci --only=production
+RUN npm ci
 
 # Rebuild the source code only when needed
 FROM base AS builder
@@ -27,6 +27,8 @@ RUN npm run build
 # Production image, copy all the files and run next
 FROM base AS runner
 WORKDIR /app
+
+RUN apk add --no-cache curl
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
