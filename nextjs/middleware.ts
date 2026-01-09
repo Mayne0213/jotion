@@ -4,9 +4,14 @@ import { verifyToken } from './src/shared/lib/auth'
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
+  // Redirect root path to /home
+  if (pathname === '/') {
+    const url = new URL('/home', request.url)
+    return NextResponse.redirect(url)
+  }
+
   // Public paths that don't require authentication
   const publicPaths = [
-    '/',
     '/home',
     '/home/signIn',
     '/home/signUp',
