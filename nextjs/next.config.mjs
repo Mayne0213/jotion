@@ -3,6 +3,9 @@ const nextConfig = {
   // Enable standalone output for Docker
   output: 'standalone',
 
+  // Disable source maps in production to reduce memory usage
+  productionBrowserSourceMaps: false,
+
   // Image optimization
   images: {
     remotePatterns: [
@@ -38,7 +41,24 @@ const nextConfig = {
         tls: false,
       };
     }
+
+    // Reduce memory usage during build
+    config.optimization = {
+      ...config.optimization,
+      minimize: true,
+    };
+
+    // Disable cache to reduce memory
+    config.cache = false;
+
     return config;
+  },
+
+  // Experimental features for memory optimization
+  experimental: {
+    // Reduce memory by not creating workers
+    workerThreads: false,
+    cpus: 1,
   },
 };
 

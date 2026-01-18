@@ -16,6 +16,10 @@ RUN bunx prisma generate
 # Copy source and build
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
+# Limit Node.js heap to 2.5GB to prevent OOM (server has 4GB limit)
+ENV NODE_OPTIONS="--max-old-space-size=2560"
+# Disable parallel type checking
+ENV NEXT_BUILD_CONCURRENCY=1
 RUN bun run build
 
 # Production image using Node.js for runtime stability
