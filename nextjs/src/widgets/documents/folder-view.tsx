@@ -4,10 +4,9 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/shared/ui/button";
 import { ArrowLeft, Folder as FolderIcon, Plus } from "lucide-react";
-import { FolderWithRelations } from "@/shared/types/folder";
-import { DocumentWithRelations } from "@/shared/types/document";
-import { useDocumentManagementStore } from "@/features/document-management/model/store";
-import { useFolderManagementStore } from "@/features/folder-management/model/store";
+import { FolderWithRelations } from "@/entities/folder";
+import { DocumentWithRelations } from "@/entities/document";
+import type { DocumentManagementActions, FolderManagementActions } from "@/shared/types";
 import { Folder } from "./folder";
 import { Document } from "./document";
 import { CreateInput } from "./create-input";
@@ -19,6 +18,12 @@ interface FolderViewProps {
   onBack: () => void;
   onFolderDeleted?: () => void;
   variant?: "desktop" | "mobile";
+  /** Document management actions (injected from page layer) */
+  documentActions: DocumentManagementActions;
+  /** Folder management actions (injected from page layer) */
+  folderActions: FolderManagementActions;
+  /** Confirm dialog function for delete confirmation */
+  onConfirmDelete?: (message: string) => Promise<boolean>;
 }
 
 export const FolderView = ({
@@ -26,13 +31,14 @@ export const FolderView = ({
   onBack,
   onFolderDeleted,
   variant = "desktop",
+  documentActions,
+  folderActions,
+  onConfirmDelete,
 }: FolderViewProps) => {
   const router = useRouter();
-  const documentManagement = useDocumentManagementStore();
-  const folderManagement = useFolderManagementStore();
-  
-  const { fetchDocumentsInFolder, createDocument, deleteDocumentFromFolder } = documentManagement;
-  const { fetchFolder, createFolder, deleteFolderFromList } = folderManagement;
+
+  const { fetchDocumentsInFolder, createDocument, deleteDocumentFromFolder } = documentActions;
+  const { fetchFolder, createFolder, deleteFolderFromList } = folderActions;
   
   const [folder, setFolder] = useState<FolderWithRelations | null>(null);
   const [documents, setDocuments] = useState<DocumentWithRelations[]>([]);
@@ -111,7 +117,11 @@ export const FolderView = ({
   };
 
   const handleDeleteFolder = async (deleteFolderId: string, folderName: string) => {
-    if (window.confirm(`정말로 "${folderName}" 폴더를 삭제하시겠습니까?`)) {
+    const confirmed = onConfirmDelete
+      ? await onConfirmDelete(`정말로 "${folderName}" 폴더를 삭제하시겠습니까?`)
+      : window.confirm(`정말로 "${folderName}" 폴더를 삭제하시겠습니까?`);
+
+    if (confirmed) {
       const success = await deleteFolderFromList(deleteFolderId);
       if (success) {
         // Refresh subfolders

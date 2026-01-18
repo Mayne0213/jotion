@@ -1,10 +1,10 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useDocumentManagementStore } from "@/features/document-management/model/store";
-import { useFolderManagementStore } from "@/features/folder-management/model/store";
 import { useDocumentStore } from "@/entities/document/model/store";
 import { useFolderStore } from "@/entities/folder/model/store";
+import type { DocumentWithRelations } from "@/entities/document";
+import type { FolderWithRelations } from "@/entities/folder";
 import { Folder } from "./folder";
 import { Document } from "./document";
 import { EmptyState } from "./empty-state";
@@ -14,6 +14,16 @@ interface RootViewProps {
   onNavigateToFolder: (folderId: string) => void;
   onFolderDeleted?: () => void;
   variant?: "desktop" | "mobile";
+  /** Create document action (injected from page layer) */
+  createDocument: (folderId?: string | null) => Promise<any>;
+  /** Delete document action (injected from page layer) */
+  deleteDocumentFromFolder: (documentId: string) => Promise<void>;
+  /** Delete folder action (injected from page layer) */
+  deleteFolderFromList: (folderId: string) => Promise<boolean>;
+  /** Whether document creation is in progress */
+  isCreating?: boolean;
+  /** Confirm dialog function for delete confirmation */
+  onConfirmDelete?: (message: string) => Promise<boolean>;
 }
 
 export const RootView = ({
@@ -21,20 +31,20 @@ export const RootView = ({
   onNavigateToFolder,
   onFolderDeleted,
   variant = "desktop",
+  createDocument,
+  deleteDocumentFromFolder,
+  deleteFolderFromList,
+  isCreating = false,
+  onConfirmDelete,
 }: RootViewProps) => {
   const router = useRouter();
-  const documentManagement = useDocumentManagementStore();
-  const folderManagement = useFolderManagementStore();
   const documentStore = useDocumentStore();
   const folderStore = useFolderStore();
-  
+
   const documents = documentStore.documents;
   const folders = folderStore.folders;
   const isLoadingDocs = documentStore.isLoading;
   const isLoadingFolders = folderStore.isLoading;
-  const isCreating = documentManagement.isCreating;
-  const { createDocument, deleteDocumentFromFolder } = documentManagement;
-  const { deleteFolderFromList } = folderManagement;
 
   const rootFolders = folders.filter(f => !f.parentId);
   const rootDocuments = documents.filter(doc => !doc.folderId && doc.type !== 'CODE_FILE');
@@ -44,7 +54,11 @@ export const RootView = ({
   };
 
   const handleDeleteFolder = async (folderId: string, folderName: string) => {
-    if (window.confirm(`정말로 "${folderName}" 폴더를 삭제하시겠습니까?`)) {
+    const confirmed = onConfirmDelete
+      ? await onConfirmDelete(`정말로 "${folderName}" 폴더를 삭제하시겠습니까?`)
+      : window.confirm(`정말로 "${folderName}" 폴더를 삭제하시겠습니까?`);
+
+    if (confirmed) {
       const success = await deleteFolderFromList(folderId);
       if (success && onFolderDeleted) {
         onFolderDeleted();

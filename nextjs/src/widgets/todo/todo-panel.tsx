@@ -1,11 +1,17 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, ReactNode } from 'react'
 import { TodoList } from '@/entities/todo/ui'
-import { TodoCreateForm, TodoFilter } from '@/features/todo-management'
 import { useTodoStore } from '@/entities/todo'
 
-export function TodoPanel() {
+interface TodoPanelProps {
+  /** Slot for the create form component */
+  CreateForm?: ReactNode;
+  /** Slot for the filter component */
+  Filter?: ReactNode;
+}
+
+export function TodoPanel({ CreateForm, Filter }: TodoPanelProps) {
   const { loadTodos } = useTodoStore()
 
   useEffect(() => {
@@ -16,7 +22,7 @@ export function TodoPanel() {
     <div className="flex flex-col h-full">
       <div className="p-4 border-b">
         <h2 className="text-lg font-semibold mb-4">할 일 목록</h2>
-        <TodoCreateForm />
+        {CreateForm}
       </div>
 
       <div className="flex-1 overflow-y-auto p-4">
@@ -24,7 +30,7 @@ export function TodoPanel() {
       </div>
 
       <div className="p-4 border-t">
-        <TodoFilter />
+        {Filter}
       </div>
     </div>
   )

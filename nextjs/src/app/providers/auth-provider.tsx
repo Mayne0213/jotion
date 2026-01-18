@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import type { User, AuthContextType } from "@/shared/types"
+import type { User, AuthContextType } from "@/entities/user"
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 

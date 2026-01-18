@@ -1,32 +1,16 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { 
-  ChevronRight, 
-  ChevronDown, 
-  File, 
-  Folder, 
+import {
+  ChevronRight,
+  ChevronDown,
+  File,
+  Folder,
   FolderOpen,
-  FileText,
-  Code,
-  Image,
-  FileCode,
-  FileImage,
-  FileJson,
-  FileType,
-  FileArchive
 } from 'lucide-react';
 import { cn } from '@/shared/lib/utils';
-
-interface FileNode {
-  id: string;
-  name: string;
-  path: string;
-  type: 'file' | 'folder';
-  language?: string;
-  size?: number;
-  children?: FileNode[];
-}
+import { buildFileTree, FileNode } from '@/shared/lib/file-tree-utils';
+import { FileIcon } from '@/shared/ui/file-icons';
 
 interface FileTreeProps {
   files: FileNode[];
@@ -34,119 +18,6 @@ interface FileTreeProps {
   selectedFileId?: string;
   className?: string;
 }
-
-const getFileIcon = (fileName: string, language?: string) => {
-  const extension = fileName.split('.').pop()?.toLowerCase();
-  
-  if (language) {
-    switch (language.toLowerCase()) {
-      case 'javascript':
-      case 'typescript':
-        return <Code className="h-4 w-4 text-yellow-600" />;
-      case 'python':
-        return <FileCode className="h-4 w-4 text-blue-600" />;
-      case 'java':
-        return <FileCode className="h-4 w-4 text-orange-600" />;
-      case 'html':
-        return <FileCode className="h-4 w-4 text-red-600" />;
-      case 'css':
-        return <FileCode className="h-4 w-4 text-blue-500" />;
-      case 'json':
-        return <FileJson className="h-4 w-4 text-yellow-500" />;
-      default:
-        return <FileCode className="h-4 w-4 text-gray-600" />;
-    }
-  }
-
-  switch (extension) {
-    case 'js':
-    case 'jsx':
-    case 'ts':
-    case 'tsx':
-      return <Code className="h-4 w-4 text-yellow-600" />;
-    case 'py':
-      return <FileCode className="h-4 w-4 text-blue-600" />;
-    case 'java':
-      return <FileCode className="h-4 w-4 text-orange-600" />;
-    case 'html':
-    case 'htm':
-      return <FileCode className="h-4 w-4 text-red-600" />;
-    case 'css':
-    case 'scss':
-    case 'sass':
-      return <FileCode className="h-4 w-4 text-blue-500" />;
-    case 'json':
-      return <FileJson className="h-4 w-4 text-yellow-500" />;
-    case 'png':
-    case 'jpg':
-    case 'jpeg':
-    case 'gif':
-    case 'svg':
-      return <FileImage className="h-4 w-4 text-green-600" />;
-    case 'md':
-    case 'txt':
-      return <FileText className="h-4 w-4 text-gray-600" />;
-    case 'zip':
-    case 'rar':
-    case '7z':
-      return <FileArchive className="h-4 w-4 text-purple-600" />;
-    default:
-      return <File className="h-4 w-4 text-gray-600" />;
-  }
-};
-
-const buildFileTree = (files: FileNode[]): FileNode[] => {
-  const tree: FileNode[] = [];
-  const pathMap = new Map<string, FileNode>();
-
-  // Sort files by path
-  const sortedFiles = [...files].sort((a, b) => a.path.localeCompare(b.path));
-
-  for (const file of sortedFiles) {
-    const pathParts = file.path.split('/');
-    let currentPath = '';
-    let parentNode: FileNode | undefined;
-
-    for (let i = 0; i < pathParts.length; i++) {
-      const part = pathParts[i];
-      currentPath = currentPath ? `${currentPath}/${part}` : part;
-      
-      if (i === pathParts.length - 1) {
-        // This is the file itself - preserve the original ID
-        // Don't override file.id with currentPath
-        if (parentNode) {
-          if (!parentNode.children) parentNode.children = [];
-          parentNode.children.push(file);
-        } else {
-          tree.push(file);
-        }
-        pathMap.set(currentPath, file);
-      } else {
-        // This is a folder
-        let folderNode = pathMap.get(currentPath);
-        if (!folderNode) {
-          folderNode = {
-            id: currentPath,
-            name: part,
-            path: currentPath,
-            type: 'folder',
-            children: [],
-          };
-          if (parentNode) {
-            if (!parentNode.children) parentNode.children = [];
-            parentNode.children.push(folderNode);
-          } else {
-            tree.push(folderNode);
-          }
-          pathMap.set(currentPath, folderNode);
-        }
-        parentNode = folderNode;
-      }
-    }
-  }
-
-  return tree;
-};
 
 const TreeNode: React.FC<{
   node: FileNode;
@@ -200,7 +71,7 @@ const TreeNode: React.FC<{
         ) : (
           <>
             <div className="w-3" />
-            {getFileIcon(node.name, node.language)}
+            <FileIcon fileName={node.name} language={node.language} />
           </>
         )}
         <span className="text-sm truncate flex-1">{node.name}</span>

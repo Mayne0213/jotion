@@ -7,7 +7,7 @@ import { RichTextEditor } from '@/widgets/editor/editor/core/rich-text-editor';
 import { Button } from '@/shared/ui/button';
 import { ArrowLeft, Copy, Check, Share2, User, Calendar } from 'lucide-react';
 import Link from 'next/link';
-import type { Document } from '@/shared/types/document';
+import type { Document } from '@/entities/document';
 import { SharedDocumentSkeleton } from '@/shared/ui/skeleton';
 
 interface SharedDocument extends Document {

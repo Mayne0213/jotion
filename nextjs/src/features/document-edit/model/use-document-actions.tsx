@@ -5,21 +5,28 @@ import { documentApi } from "@/entities/document/api";
 interface UseDocumentActionsProps {
   documentId: string;
   onPublishChange?: (isPublished: boolean) => void;
+  /** Optional custom confirm function (for using ConfirmDialog instead of window.confirm) */
+  onConfirmDelete?: () => Promise<boolean>;
 }
 
 /**
  * 문서 액션 (공유, 삭제 등)
  */
-export const useDocumentActions = ({ 
+export const useDocumentActions = ({
   documentId,
-  onPublishChange 
+  onPublishChange,
+  onConfirmDelete,
 }: UseDocumentActionsProps) => {
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
 
   // Delete document
   const deleteDocument = useCallback(async () => {
-    if (!confirm("Are you sure you want to delete this document?")) return;
+    const confirmed = onConfirmDelete
+      ? await onConfirmDelete()
+      : confirm("Are you sure you want to delete this document?");
+
+    if (!confirmed) return;
 
     try {
       setIsDeleting(true);
@@ -30,7 +37,7 @@ export const useDocumentActions = ({
     } finally {
       setIsDeleting(false);
     }
-  }, [documentId, router]);
+  }, [documentId, router, onConfirmDelete]);
 
   // Share document
   const shareDocument = useCallback(async () => {

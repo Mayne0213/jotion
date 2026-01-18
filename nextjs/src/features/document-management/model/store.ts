@@ -4,29 +4,37 @@ import { documentApi } from '@/entities/document/api';
 import { useDocumentStore } from '@/entities/document/model/store';
 import type { DocumentWithRelations, DocumentInput } from '@/entities/document/model';
 
-// Document management feature store
+// Document management feature hook
 export const useDocumentManagementStore = () => {
-  const entityStore = useDocumentStore.getState();
+  // Use the entity store as a hook to properly subscribe to state changes
+  const {
+    documents,
+    readDocuments,
+    setLoading,
+    updateDocument,
+    createDocument: createDocumentInStore
+  } = useDocumentStore();
+
   const router = useRouter();
   const [isCreating, setIsCreating] = useState(false);
 
   const fetchDocuments = useCallback(async () => {
-    entityStore.setLoading(true);
+    setLoading(true);
     try {
       const data = await documentApi.getDocuments();
-      entityStore.readDocuments(data);
+      readDocuments(data);
     } catch (error) {
       console.error("Error fetching documents:", error);
     } finally {
-      entityStore.setLoading(false);
+      setLoading(false);
     }
-  }, [entityStore]);
+  }, [readDocuments, setLoading]);
 
   const fetchDocumentsInFolder = useCallback(async (folderId: string) => {
     try {
       const data = await documentApi.getDocuments();
       // Filter by folder and code files
-      return data.filter((doc: any) => 
+      return data.filter((doc: any) =>
         doc.folderId === folderId && doc.type !== 'CODE_FILE'
       );
     } catch (error) {
@@ -40,7 +48,7 @@ export const useDocumentManagementStore = () => {
       console.log("Document creation already in progress");
       return;
     }
-    
+
     try {
       setIsCreating(true);
       const newDocument: DocumentInput = {
@@ -51,7 +59,7 @@ export const useDocumentManagementStore = () => {
         folderId: folderId || undefined,
       };
       const created = await documentApi.createDocument(newDocument);
-      await fetchDocuments();
+      readDocuments([...documents, created as DocumentWithRelations]);
       router.push(`/documents/${created.id}`);
       return created;
     } catch (error) {
@@ -60,63 +68,68 @@ export const useDocumentManagementStore = () => {
     } finally {
       setIsCreating(false);
     }
-  }, [router, fetchDocuments, isCreating]);
+  }, [router, documents, readDocuments, isCreating]);
 
   const deleteDocumentFromFolder = useCallback(async (documentId: string) => {
     try {
       await documentApi.deleteDocument(documentId);
-      await fetchDocuments();
+      // Refresh documents after deletion
+      const data = await documentApi.getDocuments();
+      readDocuments(data);
     } catch (error) {
       console.error("Error deleting document:", error);
       throw error;
     }
-  }, [fetchDocuments]);
+  }, [readDocuments]);
 
   const updateDocumentInStore = useCallback((documentId: string, updates: Partial<DocumentWithRelations>) => {
-    entityStore.updateDocument({
-      ...entityStore.documents.find(d => d.id === documentId)!,
-      ...updates
-    } as DocumentWithRelations);
-  }, [entityStore]);
+    const existingDoc = documents.find(d => d.id === documentId);
+    if (existingDoc) {
+      updateDocument({
+        ...existingDoc,
+        ...updates
+      } as DocumentWithRelations);
+    }
+  }, [documents, updateDocument]);
 
   const searchDocuments = useCallback(async (query: string) => {
-    entityStore.setLoading(true);
+    setLoading(true);
     try {
-      const documents = await documentApi.getDocuments();
+      const allDocuments = await documentApi.getDocuments();
       // Filter documents by query
-      const filtered = documents.filter(doc => 
+      const filtered = allDocuments.filter(doc =>
         doc.title.toLowerCase().includes(query.toLowerCase())
       );
-      entityStore.readDocuments(filtered);
+      readDocuments(filtered);
     } finally {
-      entityStore.setLoading(false);
+      setLoading(false);
     }
-  }, [entityStore]);
+  }, [readDocuments, setLoading]);
 
   const archiveDocument = useCallback(async (documentId: string) => {
-    entityStore.setLoading(true);
+    setLoading(true);
     try {
       await documentApi.updateDocument(documentId, { isArchived: true });
-      const documents = await documentApi.getDocuments();
-      entityStore.readDocuments(documents);
+      const data = await documentApi.getDocuments();
+      readDocuments(data);
     } finally {
-      entityStore.setLoading(false);
+      setLoading(false);
     }
-  }, [entityStore]);
+  }, [readDocuments, setLoading]);
 
   const restoreDocument = useCallback(async (documentId: string) => {
-    entityStore.setLoading(true);
+    setLoading(true);
     try {
       await documentApi.updateDocument(documentId, { isArchived: false });
-      const documents = await documentApi.getDocuments();
-      entityStore.readDocuments(documents);
+      const data = await documentApi.getDocuments();
+      readDocuments(data);
     } finally {
-      entityStore.setLoading(false);
+      setLoading(false);
     }
-  }, [entityStore]);
+  }, [readDocuments, setLoading]);
 
   const duplicateDocument = useCallback(async (documentId: string) => {
-    entityStore.setLoading(true);
+    setLoading(true);
     try {
       const original = await documentApi.getDocument(documentId);
       const newDocument: DocumentInput = {
@@ -130,12 +143,12 @@ export const useDocumentManagementStore = () => {
         folderId: original.folderId,
       };
       const created = await documentApi.createDocument(newDocument);
-      entityStore.createDocument(created as DocumentWithRelations);
+      createDocumentInStore(created as DocumentWithRelations);
       return created;
     } finally {
-      entityStore.setLoading(false);
+      setLoading(false);
     }
-  }, [entityStore]);
+  }, [createDocumentInStore, setLoading]);
 
   return {
     fetchDocuments,

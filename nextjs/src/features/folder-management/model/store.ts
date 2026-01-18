@@ -3,22 +3,28 @@ import { folderApi } from '@/entities/folder/api';
 import { useFolderStore } from '@/entities/folder/model/store';
 import type { FolderWithRelations, FolderInput } from '@/entities/folder/model';
 
-// Folder management feature store
+// Folder management feature hook
 export const useFolderManagementStore = () => {
-  const entityStore = useFolderStore.getState();
+  // Use the entity store as a hook to properly subscribe to state changes
+  const {
+    readFolders,
+    setLoading,
+    createFolder: createFolderInStore
+  } = useFolderStore();
+
   const [isCreating, setIsCreating] = useState(false);
 
   const fetchFolders = useCallback(async () => {
-    entityStore.setLoading(true);
+    setLoading(true);
     try {
       const data = await folderApi.getFolders();
-      entityStore.readFolders(data);
+      readFolders(data);
     } catch (error) {
       console.error("Error fetching folders:", error);
     } finally {
-      entityStore.setLoading(false);
+      setLoading(false);
     }
-  }, [entityStore]);
+  }, [readFolders, setLoading]);
 
   const fetchFolder = useCallback(async (folderId: string) => {
     try {
@@ -45,7 +51,9 @@ export const useFolderManagementStore = () => {
         parentId: parentId || undefined,
       };
       const created = await folderApi.createFolder(newFolder);
-      await fetchFolders();
+      // Refresh folders after creation
+      const data = await folderApi.getFolders();
+      readFolders(data);
       return created;
     } catch (error) {
       console.error("Error creating folder:", error);
@@ -53,63 +61,67 @@ export const useFolderManagementStore = () => {
     } finally {
       setIsCreating(false);
     }
-  }, [isCreating, fetchFolders]);
+  }, [isCreating, readFolders]);
 
   const updateFolder = useCallback(async (folderId: string, name: string) => {
     try {
       await folderApi.updateFolder(folderId, { name: name.trim() });
-      await fetchFolders();
+      // Refresh folders after update
+      const data = await folderApi.getFolders();
+      readFolders(data);
     } catch (error) {
       console.error("Error updating folder:", error);
     }
-  }, [fetchFolders]);
+  }, [readFolders]);
 
   const deleteFolderFromList = useCallback(async (folderId: string) => {
     try {
       await folderApi.deleteFolder(folderId);
-      await fetchFolders();
+      // Refresh folders after deletion
+      const data = await folderApi.getFolders();
+      readFolders(data);
       return true;
     } catch (error) {
       console.error("Error deleting folder:", error);
       return false;
     }
-  }, [fetchFolders]);
+  }, [readFolders]);
 
   const archiveFolder = useCallback(async (folderId: string) => {
-    entityStore.setLoading(true);
+    setLoading(true);
     try {
       await folderApi.updateFolder(folderId, { isArchived: true });
-      const folders = await folderApi.getFolders();
-      entityStore.readFolders(folders);
+      const data = await folderApi.getFolders();
+      readFolders(data);
     } finally {
-      entityStore.setLoading(false);
+      setLoading(false);
     }
-  }, [entityStore]);
+  }, [readFolders, setLoading]);
 
   const restoreFolder = useCallback(async (folderId: string) => {
-    entityStore.setLoading(true);
+    setLoading(true);
     try {
       await folderApi.updateFolder(folderId, { isArchived: false });
-      const folders = await folderApi.getFolders();
-      entityStore.readFolders(folders);
+      const data = await folderApi.getFolders();
+      readFolders(data);
     } finally {
-      entityStore.setLoading(false);
+      setLoading(false);
     }
-  }, [entityStore]);
+  }, [readFolders, setLoading]);
 
   const moveFolder = useCallback(async (folderId: string, parentId: string | undefined) => {
-    entityStore.setLoading(true);
+    setLoading(true);
     try {
       await folderApi.updateFolder(folderId, { parentId });
-      const folders = await folderApi.getFolders();
-      entityStore.readFolders(folders);
+      const data = await folderApi.getFolders();
+      readFolders(data);
     } finally {
-      entityStore.setLoading(false);
+      setLoading(false);
     }
-  }, [entityStore]);
+  }, [readFolders, setLoading]);
 
   const duplicateFolder = useCallback(async (folderId: string) => {
-    entityStore.setLoading(true);
+    setLoading(true);
     try {
       const original = await folderApi.getFolder(folderId);
       const newFolder: FolderInput = {
@@ -120,12 +132,12 @@ export const useFolderManagementStore = () => {
         parentId: original.parentId,
       };
       const created = await folderApi.createFolder(newFolder);
-      entityStore.createFolder(created as FolderWithRelations);
+      createFolderInStore(created as FolderWithRelations);
       return created;
     } finally {
-      entityStore.setLoading(false);
+      setLoading(false);
     }
-  }, [entityStore]);
+  }, [createFolderInStore, setLoading]);
 
   return {
     fetchFolders,

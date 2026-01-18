@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/src/app/providers/auth-provider";
 import { useDocumentManagementStore } from "@/features/document-management/model/store";
@@ -12,31 +12,60 @@ import { Header, CreateInput, FolderView, RootView } from "@/widgets/documents";
 import { Button } from "@/shared/ui/button";
 import { Plus, Folder } from "lucide-react";
 import { DocumentsPageSkeleton } from "@/shared/ui/skeleton";
+import { useConfirm } from "@/shared/hooks";
 
 const DocumentsPage = () => {
   const { user } = useAuth();
   const searchParams = useSearchParams();
   const currentFolderId = searchParams?.get('folder');
-  
+
   // Use management stores for operations
   const documentManagement = useDocumentManagementStore();
   const folderManagement = useFolderManagementStore();
-  
+
   // Use entity stores for state
   const documentStore = useDocumentStore();
   const folderStore = useFolderStore();
-  
+
   const documents = documentStore.documents;
   const folders = folderStore.folders;
   const isLoading = documentStore.isLoading || folderStore.isLoading;
-  
+
   // Destructure specific functions
-  const { fetchDocuments, createDocument } = documentManagement;
-  const { fetchFolders, createFolder } = folderManagement;
-  
+  const { fetchDocuments, createDocument, fetchDocumentsInFolder, deleteDocumentFromFolder } = documentManagement;
+  const { fetchFolders, createFolder, fetchFolder, deleteFolderFromList } = folderManagement;
+
   const [isCreatingFolder, setIsCreatingFolder] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
   const [refreshKey, setRefreshKey] = useState(0);
+
+  // Use confirm dialog hook
+  const { confirm, ConfirmationDialog } = useConfirm();
+
+  // Confirmation handler for widgets
+  const handleConfirmDelete = useCallback(async (message: string) => {
+    return await confirm({
+      title: "삭제 확인",
+      description: message,
+      confirmText: "삭제",
+      cancelText: "취소",
+      variant: "destructive",
+    });
+  }, [confirm]);
+
+  // Document management actions for widgets
+  const documentActions = {
+    fetchDocumentsInFolder,
+    createDocument,
+    deleteDocumentFromFolder,
+  };
+
+  // Folder management actions for widgets
+  const folderActions = {
+    fetchFolder,
+    createFolder,
+    deleteFolderFromList,
+  };
 
   // Fetch initial data
   useEffect(() => {
@@ -143,6 +172,9 @@ const DocumentsPage = () => {
                   onBack={handleGoBack}
                   onFolderDeleted={handleFolderDeleted}
                   variant="desktop"
+                  documentActions={documentActions}
+                  folderActions={folderActions}
+                  onConfirmDelete={handleConfirmDelete}
                 />
               ) : (
                 <RootView
@@ -150,6 +182,11 @@ const DocumentsPage = () => {
                   onNavigateToFolder={handleNavigateToFolder}
                   onFolderDeleted={handleFolderDeleted}
                   variant="desktop"
+                  createDocument={createDocument}
+                  deleteDocumentFromFolder={deleteDocumentFromFolder}
+                  deleteFolderFromList={deleteFolderFromList}
+                  isCreating={documentManagement.isCreating}
+                  onConfirmDelete={handleConfirmDelete}
                 />
               )}
             </div>
@@ -183,6 +220,9 @@ const DocumentsPage = () => {
                 onBack={handleGoBack}
                 onFolderDeleted={handleFolderDeleted}
                 variant="mobile"
+                documentActions={documentActions}
+                folderActions={folderActions}
+                onConfirmDelete={handleConfirmDelete}
               />
             ) : (
               <RootView
@@ -190,11 +230,17 @@ const DocumentsPage = () => {
                 onNavigateToFolder={handleNavigateToFolder}
                 onFolderDeleted={handleFolderDeleted}
                 variant="mobile"
+                createDocument={createDocument}
+                deleteDocumentFromFolder={deleteDocumentFromFolder}
+                deleteFolderFromList={deleteFolderFromList}
+                isCreating={documentManagement.isCreating}
+                onConfirmDelete={handleConfirmDelete}
               />
             )}
           </div>
         </div>
       </div>
+      <ConfirmationDialog />
     </div>
   );
 };

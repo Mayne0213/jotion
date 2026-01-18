@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import type { HeadingItem } from '@/shared/types';
+import type { HeadingItem } from '@/entities/document';
 
 export const useDocumentHeadings = (content: any) => {
   const [headingInstances] = useState<Map<string, HTMLElement[]>>(new Map());

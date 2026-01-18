@@ -1,5 +1,12 @@
 // Editor related types
-import type { DocumentListItem } from './document';
+
+// Document list item type for editor (defined locally to avoid entities import)
+export interface EditorDocumentListItem {
+  id: string;
+  title: string;
+  icon?: string;
+  updatedAt: string;
+}
 
 export interface RichTextEditorProps {
   content?: any;
@@ -7,7 +14,7 @@ export interface RichTextEditorProps {
   placeholder?: string;
   editable?: boolean;
   readOnly?: boolean;
-  availableDocuments?: DocumentListItem[];
+  availableDocuments?: EditorDocumentListItem[];
 }
 
 export interface DocumentSidebarProps {
