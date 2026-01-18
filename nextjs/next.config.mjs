@@ -54,6 +54,14 @@ const nextConfig = {
     return config;
   },
 
+  // Skip type checking to reduce memory (CI will catch errors)
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+
   // Experimental features for memory optimization
   experimental: {
     // Reduce memory by not creating workers

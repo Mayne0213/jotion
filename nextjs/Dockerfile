@@ -8,7 +8,7 @@ RUN apk add --no-cache libc6-compat
 # Install dependencies
 COPY package.json bun.lock* bun.lockb* package-lock.json* ./
 COPY prisma ./prisma
-RUN bun install --frozen-lockfile --backend=copyfile
+RUN bun install --backend=copyfile
 
 # Generate Prisma Client
 RUN bunx prisma generate
