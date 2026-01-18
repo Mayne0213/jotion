@@ -2,9 +2,6 @@
 const nextConfig = {
   // Enable standalone output for Docker
   output: 'standalone',
-  
-  // Optimize for Docker
-  outputFileTracingRoot: '/app',
 
   // Image optimization
   images: {
