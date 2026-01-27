@@ -10,10 +10,10 @@ import { Button } from "@/shared/ui/button";
 import { Spinner } from "@/shared/ui/spinner";
 import Link from "next/link";
 import { Logo } from "@/widgets/landing";
-import { useDocumentManagementStore } from "@/features/document-management/model/store";
-import { useFolderManagementStore } from "@/features/folder-management/model/store";
-import { useDocumentStore } from "@/entities/document/model/store";
-import { useFolderStore } from "@/entities/folder/model/store";
+import { useDocumentManagementStore } from "@/features/document-management";
+import { useFolderManagementStore } from "@/features/folder-management";
+import { useDocumentStore } from "@/entities/document";
+import { useFolderStore } from "@/entities/folder";
 import {
   DropdownMenu,
   DropdownMenuContent,

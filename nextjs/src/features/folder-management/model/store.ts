@@ -1,7 +1,6 @@
 import { useCallback, useState } from 'react';
-import { folderApi } from '@/entities/folder/api';
-import { useFolderStore } from '@/entities/folder/model/store';
-import type { FolderWithRelations, FolderInput } from '@/entities/folder/model';
+import { folderApi, useFolderStore } from '@/entities/folder';
+import type { FolderWithRelations, FolderInput } from '@/entities/folder';
 
 // Folder management feature hook
 export const useFolderManagementStore = () => {

@@ -1,8 +1,7 @@
 import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { documentApi } from '@/entities/document/api';
-import { useDocumentStore } from '@/entities/document/model/store';
-import type { DocumentWithRelations, DocumentInput } from '@/entities/document/model';
+import { documentApi, useDocumentStore } from '@/entities/document';
+import type { DocumentWithRelations, DocumentInput } from '@/entities/document';
 
 // Document management feature hook
 export const useDocumentManagementStore = () => {

@@ -1,7 +1,6 @@
 import { useCallback } from 'react';
-import { documentApi } from '@/entities/document/api';
-import { useDocumentStore } from '@/entities/document/model/store';
-import type { DocumentWithRelations, DocumentInput } from '@/entities/document/model';
+import { documentApi, useDocumentStore } from '@/entities/document';
+import type { DocumentWithRelations, DocumentInput } from '@/entities/document';
 
 // API 호출과 전역 상태 관리를 통합하는 훅
 export const useDocumentEditStore = () => {

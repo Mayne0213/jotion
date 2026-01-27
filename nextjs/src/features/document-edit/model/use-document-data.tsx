@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { documentApi } from "@/entities/document/api";
-import type { DocumentWithRelations, DocumentListItem } from "@/entities/document/model";
+import { documentApi } from "@/entities/document";
+import type { DocumentWithRelations, DocumentListItem } from "@/entities/document";
 
 interface UseDocumentDataProps {
   documentId: string;

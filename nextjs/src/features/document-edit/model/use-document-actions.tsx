@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { documentApi } from "@/entities/document/api";
+import { documentApi } from "@/entities/document";
 
 interface UseDocumentActionsProps {
   documentId: string;

@@ -2,8 +2,7 @@
 
 import { useState } from "react";
 import { TemplateModal } from "../template/template-modal";
-import { useSidebarSearch } from "@/features/document-edit/model/use-sidebar-search";
-import { useDocumentHeadings } from "@/features/document-edit/model/use-document-headings";
+import { useSidebarSearch, useDocumentHeadings } from "@/features/document-edit";
 import { SearchBar } from "./search-bar";
 import { SearchResults } from "./search-results";
 import { DocumentOverview } from "./document-overview";

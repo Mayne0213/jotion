@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
-import { documentApi } from "@/entities/document/api";
-import type { DocumentWithRelations } from "@/entities/document/model";
+import { documentApi } from "@/entities/document";
+import type { DocumentWithRelations } from "@/entities/document";
 
 interface UseDocumentSaveProps {
   documentId: string;

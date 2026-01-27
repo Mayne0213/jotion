@@ -1,8 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useDocumentStore } from "@/entities/document/model/store";
-import { useFolderStore } from "@/entities/folder/model/store";
+import { useDocumentStore } from "@/entities/document";
+import { useFolderStore } from "@/entities/folder";
 import type { DocumentWithRelations } from "@/entities/document";
 import type { FolderWithRelations } from "@/entities/folder";
 import { Folder } from "./folder";

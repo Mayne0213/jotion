@@ -1,7 +1,6 @@
 import { useCallback } from 'react';
-import { templateApi } from '@/entities/template/api';
-import { useTemplateStore } from '@/entities/template/model/store';
-import type { DatabaseTemplate } from '@/entities/template/model';
+import { templateApi, useTemplateStore } from '@/entities/template';
+import type { DatabaseTemplate } from '@/entities/template';
 
 // Template apply feature store
 export const useTemplateApplyStore = () => {

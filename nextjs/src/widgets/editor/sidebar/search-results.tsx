@@ -1,5 +1,5 @@
 import { ArrowRight } from "lucide-react";
-import type { SearchResult } from "@/features/document-edit/model/use-sidebar-search";
+import type { SearchResult } from "@/features/document-edit";
 
 interface SearchResultsProps {
   showSearchResults: boolean;

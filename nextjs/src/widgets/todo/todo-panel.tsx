@@ -1,8 +1,7 @@
 'use client'
 
 import { useEffect, ReactNode } from 'react'
-import { TodoList } from '@/entities/todo/ui'
-import { useTodoStore } from '@/entities/todo'
+import { TodoList, useTodoStore } from '@/entities/todo'
 
 interface TodoPanelProps {
   /** Slot for the create form component */

@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { FolderWithRelations } from "@/entities/folder/model";
+import type { FolderWithRelations } from "@/entities/folder";
 
 export const useFolderNavigation = () => {
   const [currentFolder, setCurrentFolder] = useState<FolderWithRelations | null>(null);
@@ -39,4 +39,3 @@ export const useFolderNavigation = () => {
     goToRoot,
   };
 };
-
