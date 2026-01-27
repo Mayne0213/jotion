@@ -17,6 +17,11 @@ RUN npx prisma generate
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_OPTIONS="--max-old-space-size=2560"
+
+# Build-time environment variables for Next.js public env
+ARG NEXT_PUBLIC_TODO_API_URL=http://localhost:3002
+ENV NEXT_PUBLIC_TODO_API_URL=${NEXT_PUBLIC_TODO_API_URL}
+
 RUN npm run build
 
 # Verify standalone output exists

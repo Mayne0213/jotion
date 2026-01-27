@@ -9,9 +9,18 @@ export interface CheckboxProps
 
 const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
   ({ className, onCheckedChange, checked, ...props }, ref) => {
+    const inputRef = React.useRef<HTMLInputElement>(null)
+
+    // Merge refs
+    React.useImperativeHandle(ref, () => inputRef.current as HTMLInputElement)
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       onCheckedChange?.(e.target.checked)
       props.onChange?.(e)
+    }
+
+    const handleClick = () => {
+      inputRef.current?.click()
     }
 
     return (
@@ -19,12 +28,13 @@ const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
         <input
           type="checkbox"
           className="sr-only peer"
-          ref={ref}
+          ref={inputRef}
           checked={checked}
           onChange={handleChange}
           {...props}
         />
         <div
+          onClick={handleClick}
           className={cn(
             "h-5 w-5 rounded border border-input bg-background",
             "flex items-center justify-center",

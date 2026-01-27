@@ -16,7 +16,7 @@ export function withAuth(handler: (req: NextRequest, userId: string) => Promise<
     }
 
     // Get token from cookie
-    const token = req.cookies.get('auth-token')?.value
+    const token = req.cookies.get('token')?.value
     
     if (!token) {
       const response = NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
