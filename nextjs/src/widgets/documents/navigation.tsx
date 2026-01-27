@@ -409,7 +409,7 @@ export const Navigation = () => {
                                             {user.name || 'Anonymous'}
                                         </p>
                                         <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                                            {user.email || 'user@example.com'}
+                                            @{user.username}
                                         </p>
                                     </div>
                                     <MoreHorizontal className="h-4 w-4 text-gray-400 dark:text-gray-500" />
@@ -419,7 +419,7 @@ export const Navigation = () => {
                                 {/* Profile Section */}
                                 <div className="px-2 py-1.5">
                                     <p className="text-sm font-medium text-gray-900 dark:text-white">{user.name || 'Anonymous'}</p>
-                                    <p className="text-xs text-gray-500 dark:text-gray-400">{user.email || 'user@example.com'}</p>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400">@{user.username}</p>
                                 </div>
                                 <DropdownMenuSeparator />
                                 {/* Theme Preferences */}

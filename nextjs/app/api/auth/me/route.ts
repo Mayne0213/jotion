@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
       where: { id: payload.userId },
       select: {
         id: true,
-        email: true,
+        username: true,
         name: true,
         image: true,
       },

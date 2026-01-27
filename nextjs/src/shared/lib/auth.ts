@@ -6,7 +6,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-producti
 
 export interface JWTPayload {
   userId: string
-  email: string
+  username: string
 }
 
 export async function hashPassword(password: string): Promise<string> {
@@ -29,21 +29,21 @@ export function verifyToken(token: string): JWTPayload | null {
   }
 }
 
-export async function createUser(email: string, password: string, name?: string) {
+export async function createUser(username: string, password: string, name?: string) {
   const hashedPassword = await hashPassword(password)
-  
+
   return db.user.create({
     data: {
-      email,
+      username,
       password: hashedPassword,
       name,
     },
   })
 }
 
-export async function authenticateUser(email: string, password: string) {
+export async function authenticateUser(username: string, password: string) {
   const user = await db.user.findUnique({
-    where: { email },
+    where: { username },
   })
 
   if (!user) {

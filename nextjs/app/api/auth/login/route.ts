@@ -3,18 +3,18 @@ import { authenticateUser, generateToken } from '@/shared/lib/auth'
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, password } = await req.json()
+    const { username, password } = await req.json()
 
     // Validation
-    if (!email || !password) {
+    if (!username || !password) {
       return NextResponse.json(
-        { error: 'Email and password are required' },
+        { error: 'Username and password are required' },
         { status: 400 }
       )
     }
 
     // Authenticate user
-    const user = await authenticateUser(email, password)
+    const user = await authenticateUser(username, password)
 
     if (!user) {
       return NextResponse.json(
@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
     // Generate JWT token
     const token = generateToken({
       userId: user.id,
-      email: user.email,
+      username: user.username,
     })
 
     // Create response with user data
@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
       token,
       user: {
         id: user.id,
-        email: user.email,
+        username: user.username,
         name: user.name,
         image: user.image,
       },

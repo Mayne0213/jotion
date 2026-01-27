@@ -4,12 +4,12 @@ import { db } from '@/shared/lib/db'
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, password, name } = await req.json()
+    const { username, password, name } = await req.json()
 
     // Validation
-    if (!email || !password) {
+    if (!username || !password) {
       return NextResponse.json(
-        { error: 'Email and password are required' },
+        { error: 'Username and password are required' },
         { status: 400 }
       )
     }
@@ -23,33 +23,33 @@ export async function POST(req: NextRequest) {
 
     // Check if user already exists
     const existingUser = await db.user.findUnique({
-      where: { email },
+      where: { username },
     })
 
     if (existingUser) {
       return NextResponse.json(
-        { error: 'User already exists' },
+        { error: 'Username already exists' },
         { status: 400 }
       )
     }
 
     // Create user
-    const user = await createUser(email, password, name)
+    const user = await createUser(username, password, name)
 
     // Generate JWT token
     const token = generateToken({
       userId: user.id,
-      email: user.email,
+      username: user.username,
     })
 
     // Create response with user data
     const response = NextResponse.json(
-      { 
+      {
         message: 'User created successfully',
         token,
         user: {
           id: user.id,
-          email: user.email,
+          username: user.username,
           name: user.name,
         }
       },
