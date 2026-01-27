@@ -1,28 +1,28 @@
-# Multi-stage build for Next.js application using Bun
-FROM docker.io/oven/bun:1-alpine AS builder
+# Multi-stage build for Next.js application
+FROM docker.io/library/node:20-alpine AS builder
 WORKDIR /app
 
 # Install dependencies
 RUN apk add --no-cache libc6-compat
 
 # Install dependencies
-COPY package.json bun.lock* bun.lockb* package-lock.json* ./
+COPY package.json package-lock.json* ./
 COPY prisma ./prisma
-RUN bun install --backend=copyfile
+RUN npm ci
 
 # Generate Prisma Client
-RUN bunx prisma generate
+RUN npx prisma generate
 
 # Copy source and build
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
-# Limit Node.js heap to 2.5GB to prevent OOM (server has 4GB limit)
 ENV NODE_OPTIONS="--max-old-space-size=2560"
-# Disable parallel type checking
-ENV NEXT_BUILD_CONCURRENCY=1
-RUN bun run build
+RUN npm run build
 
-# Production image using Node.js for runtime stability
+# Verify standalone output exists
+RUN test -d .next/standalone || (echo "ERROR: standalone directory not found" && exit 1)
+
+# Production image
 FROM docker.io/library/node:20-alpine AS runner
 WORKDIR /app
 
