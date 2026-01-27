@@ -33,7 +33,7 @@ export function middleware(request: NextRequest) {
   // Check for authentication on protected paths
   if (pathname.startsWith('/documents')) {
     // Get token from cookie
-    const token = request.cookies.get('auth-token')?.value
+    const token = request.cookies.get('token')?.value
 
     if (!token) {
       // Redirect to home page if no token
@@ -48,7 +48,7 @@ export function middleware(request: NextRequest) {
       // Invalid token, clear cookie and redirect
       const url = new URL('/home', request.url)
       const response = NextResponse.redirect(url)
-      response.cookies.delete('auth-token')
+      response.cookies.delete('token')
       return response
     }
 

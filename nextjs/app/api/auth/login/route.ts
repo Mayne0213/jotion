@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
     })
 
     // Set auth token in cookie (HttpOnly for security)
-    response.cookies.set('auth-token', token, {
+    response.cookies.set('token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',

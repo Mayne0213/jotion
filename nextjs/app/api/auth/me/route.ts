@@ -5,7 +5,7 @@ import { db } from '@/shared/lib/db'
 export async function GET(req: NextRequest) {
   try {
     // Get token from cookie
-    const token = req.cookies.get('auth-token')?.value
+    const token = req.cookies.get('token')?.value
 
     if (!token) {
       return NextResponse.json(

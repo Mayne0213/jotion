@@ -14,32 +14,18 @@ export const Navbar = () => {
     return (
         <div className={cn("z-50 bg-background dark:bg-[#1F1F1F] fixed top-0 flex items-center w-full p-6",useScrollTop() && "border-b shadow-sm")}>
             <Logo/>
-            <div className="md:ml-auto md:justify-end justify-between w-full flex items-center gap-x-2">
+            <div className="ml-auto justify-end w-full flex items-center gap-x-2">
                 {!user && !isLoading && (
-                    <>
-                        <Button variant="ghost" size="sm" asChild>
-                            <Link href="/home/signIn">
-                                Log in
-                            </Link>
-                        </Button>
-
-                        <Button size="sm" asChild>
-                            <Link href="/signup">
-                                Get Jotion Free
-                            </Link>
-                        </Button>
-                    </>)}
+                    <Button variant="ghost" size="sm" asChild>
+                        <Link href="/home/signIn">
+                            Log in
+                        </Link>
+                    </Button>
+                )}
                 {user && !isLoading && (
-                    <>
-                        <Button variant="ghost" size="sm" asChild>
-                            <Link href="/documents">
-                                Enter Jotion
-                            </Link>
-                        </Button>
-                        <Button variant="ghost" size="sm" onClick={logout}>
-                            Logout
-                        </Button>
-                    </>
+                    <Button variant="ghost" size="sm" onClick={logout}>
+                        Logout
+                    </Button>
                 )}
                 <ModeToggle/>
             </div>
